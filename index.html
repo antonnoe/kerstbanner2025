@@ -15,8 +15,8 @@
             height: 100%;
             overflow: hidden;
             background-color: #800000; /* Huisstijl Maroon */
-            /* Iets compactere gradient voor de 120px hoogte */
-            background-image: radial-gradient(circle at center, #990000 0%, #800000 80%, #650000 100%);
+            /* Iets diepere gradient voor contrast met de sneeuw */
+            background-image: radial-gradient(circle at center, #990000 0%, #750000 80%, #550000 100%);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -24,49 +24,64 @@
             color: #ffffff;
         }
 
+        /* --- SNEEUW EFFECT --- */
+        #snow-container {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 2;
+        }
+        .snowflake {
+            position: absolute;
+            top: -10px;
+            background-color: #fff;
+            border-radius: 50%;
+            opacity: 0;
+            animation: snowfall linear infinite;
+        }
+        @keyframes snowfall {
+            0% { transform: translateY(0) translateX(0); opacity: 0; }
+            10% { opacity: 0.8; }
+            100% { transform: translateY(150px) translateX(25px); opacity: 0.1; }
+        }
+
+
         /* --- DECORATIES (SVG) --- */
         .deco {
             position: absolute;
             fill: #fff9e6; /* De zachte crème-kleur */
-            opacity: 0.2; /* Subtiel beginpunt */
+            opacity: 0.18; /* Ietsjes minder transparant nu ze groter zijn */
             z-index: 1;
             pointer-events: none;
-            /* De adem-animatie toepassen */
-            animation: breathe 7s infinite ease-in-out alternate;
+            /* Het ademen is nu iets langzamer omdat ze groter zijn */
+            animation: breathe 8s infinite ease-in-out alternate;
         }
 
-        /* Specifieke plaatsing voor 120px hoogte */
-        .holly-tl { top: -5px; left: -5px; width: 55px; height: 55px; transform: rotate(-10deg); }
-        .holly-br { bottom: -5px; right: -5px; width: 55px; height: 55px; transform: rotate(170deg); animation-delay: 2s; }
+        /* AANGEPASTE GROOTTE VOOR 120PX HOOGTE */
+        /* Hulst veel groter en iets meer de hoek in gedrukt */
+        .holly-tl { top: -25px; left: -20px; width: 100px; height: 100px; transform: rotate(-15deg); }
+        .holly-br { bottom: -25px; right: -20px; width: 100px; height: 100px; transform: rotate(165deg); animation-delay: 2s; }
         
-        .bauble-1 { top: 0; left: 18%; width: 28px; height: 45px; animation-delay: 1s; }
-        .bauble-2 { top: 0; right: 22%; width: 35px; height: 55px; animation-delay: 3.5s; }
+        /* Kerstballen veel groter gemaakt */
+        .bauble-1 { top: -10px; left: 12%; width: 55px; height: 90px; animation-delay: 1s; }
+        .bauble-2 { top: -15px; right: 15%; width: 70px; height: 110px; animation-delay: 3.5s; }
 
 
-        /* --- ANIMATIES --- */
-        /* Het rustige ademen van de decoraties */
+        /* --- OVERIGE ANIMATIES --- */
         @keyframes breathe {
-            0% { transform: scale(1); opacity: 0.2; }
-            100% { transform: scale(1.08); opacity: 0.35; }
+            0% { transform: scale(1) rotate(var(--r, 0deg)); opacity: 0.18; }
+            100% { transform: scale(1.05) rotate(var(--r, 0deg)); opacity: 0.3; }
         }
         
-        /* De subtiele glow op de tekst */
         @keyframes softGlow {
             from { text-shadow: 0 0 10px rgba(255, 249, 230, 0.3); }
-            to { text-shadow: 0 0 20px rgba(255, 249, 230, 0.6), 0 0 4px rgba(255, 255, 255, 0.4); }
+            to { text-shadow: 0 0 22px rgba(255, 249, 230, 0.7), 0 0 5px rgba(255, 255, 255, 0.5); }
         }
-
-        /* Knipperende sterretjes */
-        @keyframes twinkle {
-            0%, 100% { opacity: 0.1; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(1.3); }
-        }
-
 
         /* --- TEKST GEDEELTE --- */
         .banner-stage {
             position: relative;
-            width: 80%; /* Iets breder nu de decoraties in de hoeken zitten */
+            width: 75%; /* Iets smaller om ruimte te maken voor de grote deco */
             height: 100%;
             display: flex;
             justify-content: center;
@@ -80,7 +95,6 @@
             width: 100%;
             opacity: 0;
             visibility: hidden;
-            /* Langzame fade voor de soft flow */
             transition: opacity 3s ease-in-out, visibility 3s;
         }
 
@@ -91,7 +105,7 @@
 
         h1 {
             font-family: 'Poppins', sans-serif;
-            font-size: 1.6rem; /* Iets kleiner ivm 120px hoogte */
+            font-size: 1.7rem; 
             margin: 0 0 8px 0;
             color: #fff9e6;
             letter-spacing: 0.5px;
@@ -100,32 +114,31 @@
 
         p {
             font-family: 'Mulish', sans-serif;
-            font-size: 1.05rem;
-            line-height: 1.4em; /* Iets compacter ivm 120px hoogte */
+            font-size: 1.1rem;
+            line-height: 1.4em;
             margin: 0;
             font-weight: 300;
-            color: rgba(255, 255, 255, 0.9);
-        }
-
-        .sparkle {
-            position: absolute;
-            background: white;
-            border-radius: 50%;
-            opacity: 0.2;
-            animation: twinkle 5s infinite;
+            color: rgba(255, 255, 255, 0.95);
         }
     </style>
 </head>
 <body>
 
-    <svg class="deco holly-tl" viewBox="0 0 24 24"><path d="M12 2C12 2 11 5 8 6C5 7 2 6 2 6C2 6 3 9 6 11C9 13 8 16 8 16C8 16 11 15 13 12C15 9 12 2 12 2Z M16 7C16 7 17 10 20 11C23 12 24 11 24 11C24 11 23 14 20 16C17 18 18 21 18 21C18 21 15 20 13 17C11 14 16 7 16 7Z M13 22C13 22 14 25 17 26C20 27 21 26 21 26C21 26 20 29 17 31C14 33 15 36 15 36C15 36 12 35 10 32C8 29 13 22 13 22Z M12 13C11.4477 13 11 13.4477 11 14C11 14.5523 11.4477 15 12 15C12.5523 15 13 14.5523 13 14C13 13.4477 12.5523 13 12 13Z M10 16C9.44772 16 9 16.4477 9 17C9 17.5523 9.44772 18 10 18C10.5523 18 11 17.5523 11 17C11 16.4477 10.5523 16 10 16Z M14 16C13.4477 16 13 16.4477 13 17C13 17.5523 13.4477 18 14 18C14.5523 18 15 17.5523 15 17C15 16.4477 14.5523 16 14 16Z"/></svg>
-    <svg class="deco holly-br" viewBox="0 0 24 24"><path d="M12 2C12 2 11 5 8 6C5 7 2 6 2 6C2 6 3 9 6 11C9 13 8 16 8 16C8 16 11 15 13 12C15 9 12 2 12 2Z M16 7C16 7 17 10 20 11C23 12 24 11 24 11C24 11 23 14 20 16C17 18 18 21 18 21C18 21 15 20 13 17C11 14 16 7 16 7Z M12 13C11.4477 13 11 13.4477 11 14C11 14.5523 11.4477 15 12 15C12.5523 15 13 14.5523 13 14C13 13.4477 12.5523 13 12 13Z M10 16C9.44772 16 9 16.4477 9 17C9 17.5523 9.44772 18 10 18C10.5523 18 11 17.5523 11 17C11 16.4477 10.5523 16 10 16Z M14 16C13.4477 16 13 16.4477 13 17C13 17.5523 13.4477 18 14 18C14.5523 18 15 17.5523 15 17C15 16.4477 14.5523 16 14 16Z"/></svg>
+    <div id="snow-container">
+        <div class="snowflake" style="left: 10%; width: 3px; height: 3px; animation-duration: 7s; animation-delay: 0s;"></div>
+        <div class="snowflake" style="left: 25%; width: 2px; height: 2px; animation-duration: 6s; animation-delay: 2s;"></div>
+        <div class="snowflake" style="left: 40%; width: 4px; height: 4px; animation-duration: 8s; animation-delay: 1s;"></div>
+        <div class="snowflake" style="left: 55%; width: 2px; height: 2px; animation-duration: 9s; animation-delay: 4s;"></div>
+        <div class="snowflake" style="left: 70%; width: 3px; height: 3px; animation-duration: 6.5s; animation-delay: 1.5s;"></div>
+        <div class="snowflake" style="left: 85%; width: 2px; height: 2px; animation-duration: 7.5s; animation-delay: 3s;"></div>
+        <div class="snowflake" style="left: 95%; width: 3px; height: 3px; animation-duration: 8.5s; animation-delay: 0.5s;"></div>
+         <div class="snowflake" style="left: 5%; width: 2px; height: 2px; animation-duration: 10s; animation-delay: 5s;"></div>
+    </div>
+
+    <svg class="deco holly-tl" style="--r:-15deg" viewBox="0 0 24 24"><path d="M12 2C12 2 11 5 8 6C5 7 2 6 2 6C2 6 3 9 6 11C9 13 8 16 8 16C8 16 11 15 13 12C15 9 12 2 12 2Z M16 7C16 7 17 10 20 11C23 12 24 11 24 11C24 11 23 14 20 16C17 18 18 21 18 21C18 21 15 20 13 17C11 14 16 7 16 7Z M13 22C13 22 14 25 17 26C20 27 21 26 21 26C21 26 20 29 17 31C14 33 15 36 15 36C15 36 12 35 10 32C8 29 13 22 13 22Z M12 13C11.4477 13 11 13.4477 11 14C11 14.5523 11.4477 15 12 15C12.5523 15 13 14.5523 13 14C13 13.4477 12.5523 13 12 13Z M10 16C9.44772 16 9 16.4477 9 17C9 17.5523 9.44772 18 10 18C10.5523 18 11 17.5523 11 17C11 16.4477 10.5523 16 10 16Z M14 16C13.4477 16 13 16.4477 13 17C13 17.5523 13.4477 18 14 18C14.5523 18 15 17.5523 15 17C15 16.4477 14.5523 16 14 16Z"/></svg>
+    <svg class="deco holly-br" style="--r:165deg" viewBox="0 0 24 24"><path d="M12 2C12 2 11 5 8 6C5 7 2 6 2 6C2 6 3 9 6 11C9 13 8 16 8 16C8 16 11 15 13 12C15 9 12 2 12 2Z M16 7C16 7 17 10 20 11C23 12 24 11 24 11C24 11 23 14 20 16C17 18 18 21 18 21C18 21 15 20 13 17C11 14 16 7 16 7Z M12 13C11.4477 13 11 13.4477 11 14C11 14.5523 11.4477 15 12 15C12.5523 15 13 14.5523 13 14C13 13.4477 12.5523 13 12 13Z M10 16C9.44772 16 9 16.4477 9 17C9 17.5523 9.44772 18 10 18C10.5523 18 11 17.5523 11 17C11 16.4477 10.5523 16 10 16Z M14 16C13.4477 16 13 16.4477 13 17C13 17.5523 13.4477 18 14 18C14.5523 18 15 17.5523 15 17C15 16.4477 14.5523 16 14 16Z"/></svg>
     <svg class="deco bauble-1" viewBox="0 0 24 50"><path d="M12,0 L12,10 C12,10 14,11 14,13 C14,15 12,16 12,16 C12,16 10,15 10,13 C10,11 12,10 12,10 Z M12,16 C17.5228475,16 22,20.4771525 22,26 C22,31.5228475 17.5228475,36 12,36 C6.4771525,36 2,31.5228475 2,26 C2,20.4771525 6.4771525,16 12,16 Z"/></svg>
     <svg class="deco bauble-2" viewBox="0 0 24 50"><path d="M12,0 L12,8 C12,8 14,9 14,11 C14,13 12,14 12,14 C12,14 10,13 10,11 C10,9 12,8 12,8 Z M12,14 C18.627417,14 24,19.372583 24,26 C24,32.627417 18.627417,38 12,38 C5.372583,38 0,32.627417 0,26 C0,19.372583 5.372583,14 12,14 Z"/></svg>
-
-    <div class="sparkle" style="top:15%; left:8%; width:2px; height:2px; animation-delay: 0s;"></div>
-    <div class="sparkle" style="top:75%; left:85%; width:3px; height:3px; animation-delay: 2s;"></div>
-    <div class="sparkle" style="top:35%; left:80%; width:2px; height:2px; animation-delay: 4s;"></div>
 
     <div class="banner-stage">
         <div class="slide active">
