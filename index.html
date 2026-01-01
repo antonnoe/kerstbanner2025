@@ -3,168 +3,258 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>X-Mass Banner 2026</title>
+    <title>Nieuwjaar 2026 Banner</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Mulish:wght@300;400&family=Poppins:wght@700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Mulish:wght@300;400;600&family=Poppins:wght@600;700&display=swap');
+
+        *, *::before, *::after { box-sizing: border-box; }
 
         body, html {
             margin: 0; padding: 0;
             width: 100%; height: 100%;
             overflow: hidden;
-            background: #800000;
-            background: radial-gradient(circle at center, #a00000 0%, #800000 70%, #500000 100%);
             font-family: 'Mulish', sans-serif;
-            color: #ffffff;
         }
 
-        /* --- SNEEUWLAAG ONDEROP --- */
-        .snow-floor {
+        .banner-wrapper {
+            width: 100%; height: 100%;
+            background: linear-gradient(180deg, 
+                #87CEEB 0%,      /* Zachtblauw boven */
+                #b5e0f5 40%,     /* Lichter midden */
+                #e8f4fc 70%,     /* Bijna wit */
+                #ffffff 100%    /* Wit onderaan */
+            );
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* --- ZON --- */
+        .sun {
             position: absolute;
-            bottom: -5px; left: -5%; width: 110%;
-            height: 25px;
+            top: 8px; right: 15%;
+            width: 50px; height: 50px;
+            background: radial-gradient(circle at 40% 40%, #fff7b0 0%, #ffd700 50%, #ffb800 100%);
+            border-radius: 50%;
+            box-shadow: 
+                0 0 30px rgba(255,215,0,0.6),
+                0 0 60px rgba(255,200,0,0.3),
+                0 0 100px rgba(255,180,0,0.2);
+            z-index: 5;
+            animation: pulse 4s ease-in-out infinite;
+        }
+        .sun::before {
+            content: '';
+            position: absolute;
+            top: -15px; left: -15px; right: -15px; bottom: -15px;
+            background: radial-gradient(circle, rgba(255,215,0,0.3) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: glow 3s ease-in-out infinite alternate;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        @keyframes glow {
+            from { opacity: 0.5; }
+            to { opacity: 1; }
+        }
+
+        /* --- SNEEUWHEUVELS --- */
+        .hills {
+            position: absolute;
+            bottom: 0; left: 0; width: 100%; height: 40%;
+            z-index: 10;
+        }
+        .hill {
+            position: absolute;
+            bottom: 0;
             background: #fff;
-            border-radius: 50% 50% 0 0 / 100% 100% 0 0;
-            filter: blur(2px);
-            z-index: 15;
-            box-shadow: 0 -5px 15px rgba(255,255,255,0.5);
+            border-radius: 50% 50% 0 0;
+        }
+        .hill-1 {
+            left: -10%; width: 50%; height: 70%;
+            background: linear-gradient(180deg, #ffffff 0%, #f0f8ff 100%);
+            box-shadow: inset 0 10px 30px rgba(135,206,235,0.2);
+        }
+        .hill-2 {
+            right: -5%; width: 60%; height: 55%;
+            background: linear-gradient(180deg, #ffffff 0%, #e8f4fc 100%);
+            box-shadow: inset 0 10px 20px rgba(135,206,235,0.15);
+        }
+        .hill-3 {
+            left: 25%; width: 55%; height: 45%;
+            background: linear-gradient(180deg, #fafeff 0%, #f5fafd 100%);
+            z-index: 11;
         }
 
         /* --- VALLENDE SNEEUW --- */
         .snow-container {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; z-index: 12;
+            pointer-events: none; z-index: 50;
+            overflow: hidden;
         }
         .snowflake {
-            position: absolute; top: -10px; background: #fff; border-radius: 50%; opacity: 0.8;
-            animation: fall linear infinite;
-        }
-        @keyframes fall {
-            to { transform: translateY(130px) translateX(20px); opacity: 0.3; }
-        }
-
-        /* --- GIGANTISCHE KERSTBALLEN --- */
-        .bauble {
             position: absolute;
-            z-index: 20;
-            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.4));
-            animation: swing 6s infinite ease-in-out alternate;
-            transform-origin: top center;
+            top: -10px;
+            background: #fff;
+            border-radius: 50%;
+            opacity: 0.9;
+            box-shadow: 0 0 3px rgba(255,255,255,0.8);
+            animation: snowfall linear infinite;
         }
-        
-        /* Links: 2 stuks */
-        .b-left-1 { top: -10px; left: -20px; width: 100px; --r: -3deg; }
-        .b-left-2 { top: -20px; left: 40px; width: 70px; animation-delay: 1s; --r: 2deg; }
-
-        /* Rechts: 3 stuks */
-        .b-right-1 { top: -10px; right: -30px; width: 120px; --r: 2deg; }
-        .b-right-2 { top: -15px; right: 60px; width: 60px; animation-delay: 0.5s; --r: -4deg; }
-        .b-right-3 { top: 30px; right: 30px; width: 50px; animation-delay: 2s; --r: 1deg; }
-
-        @keyframes swing {
-            from { transform: rotate(var(--r)); }
-            to { transform: rotate(calc(var(--r) * -1 + 2deg)); }
+        @keyframes snowfall {
+            0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0.9; }
+            100% { transform: translateY(120px) translateX(15px) rotate(360deg); opacity: 0.4; }
         }
 
-        /* --- TEKST STYLING --- */
-        .banner-stage {
+        /* --- GLINSTERENDE STERRETJES --- */
+        .sparkle {
+            position: absolute;
+            width: 4px; height: 4px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 6px 2px rgba(255,255,255,0.8);
+            animation: twinkle 2s ease-in-out infinite;
+            z-index: 4;
+        }
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        /* --- TEKST --- */
+        .text-container {
             position: relative;
-            width: 50%; /* Smal middenstuk voor tekst */
-            margin: 0 auto;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            z-index: 60;
             text-align: center;
-            z-index: 30;
+            padding: 15px 25px;
         }
-
-        .slide {
-            position: absolute; width: 100%; opacity: 0; visibility: hidden;
-            transition: opacity 2s ease-in-out, visibility 2s;
-        }
-        .slide.active { opacity: 1; visibility: visible; }
 
         h1 {
             font-family: 'Poppins', sans-serif;
-            font-size: 1.6rem; margin: 0;
-            color: #fff9e6;
-            text-shadow: 0 0 15px rgba(255,255,255,0.6);
-            line-height: 1.1em;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #800000;
+            margin: 0 0 5px 0;
+            text-shadow: 
+                0 1px 2px rgba(255,255,255,0.8),
+                0 0 20px rgba(255,255,255,0.5);
+            line-height: 1.2em;
+            letter-spacing: 0.02em;
         }
-        p {
+
+        .subtitle {
             font-family: 'Mulish', sans-serif;
-            font-size: 1rem; line-height: 1.6em; /* Ruime regelafstand conform instructie */
-            margin-top: 5px; font-weight: 300;
+            font-size: 0.9rem;
+            font-weight: 400;
+            color: rgba(128,0,0,0.75);
+            line-height: 1.8em;
+            margin: 0;
+        }
+
+        .year {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #800000;
+            margin: 5px 0;
+            text-shadow: 
+                0 2px 4px rgba(255,255,255,0.9),
+                0 0 30px rgba(128,0,0,0.2);
+            animation: yearPop 3s ease-in-out infinite;
+        }
+        @keyframes yearPop {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+        }
+
+        /* --- DECORATIEVE ACCENT ELEMENTEN --- */
+        .accent-dot {
+            display: inline-block;
+            width: 6px; height: 6px;
+            background: rgba(128,0,0,0.5);
+            border-radius: 50%;
+            margin: 0 8px;
+            vertical-align: middle;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 8px; height: 8px;
+            border-radius: 2px;
+            opacity: 0.7;
+            animation: confettiFall 6s linear infinite;
+            z-index: 55;
+        }
+        @keyframes confettiFall {
+            0% { transform: translateY(0) rotate(0deg); opacity: 0.7; }
+            100% { transform: translateY(120px) rotate(720deg); opacity: 0; }
         }
     </style>
 </head>
 <body>
 
-    <div class="snow-floor"></div>
-    <div class="snow-container" id="snow"></div>
+<div class="banner-wrapper">
+    
+    <!-- Zon -->
+    <div class="sun"></div>
 
-    <svg class="bauble b-left-1" viewBox="0 0 100 100">
-        <defs><radialGradient id="grad1" cx="30%" cy="30%" r="50%"><stop offset="0%" stop-color="#ff4d4d"/><stop offset="100%" stop-color="#800000"/></radialGradient></defs>
-        <circle cx="50" cy="55" r="40" fill="url(#grad1)"/>
-        <rect x="45" y="10" width="10" height="10" fill="#ffd700"/>
-    </svg>
-    <svg class="bauble b-left-2" viewBox="0 0 100 100">
-        <circle cx="50" cy="55" r="40" fill="url(#grad1)"/>
-        <rect x="45" y="10" width="10" height="10" fill="#ffd700"/>
-    </svg>
+    <!-- Glinsterende sterretjes -->
+    <div class="sparkle" style="top: 15%; left: 10%; animation-delay: 0s;"></div>
+    <div class="sparkle" style="top: 25%; left: 25%; animation-delay: 0.5s;"></div>
+    <div class="sparkle" style="top: 10%; left: 40%; animation-delay: 1s;"></div>
+    <div class="sparkle" style="top: 30%; right: 35%; animation-delay: 1.5s;"></div>
+    <div class="sparkle" style="top: 18%; right: 10%; animation-delay: 0.3s;"></div>
 
-    <svg class="bauble b-right-1" viewBox="0 0 100 100">
-        <circle cx="50" cy="55" r="40" fill="url(#grad1)"/>
-        <rect x="45" y="10" width="10" height="10" fill="#ffd700"/>
-    </svg>
-    <svg class="bauble b-right-2" viewBox="0 0 100 100">
-        <circle cx="50" cy="55" r="40" fill="url(#grad1)"/>
-        <rect x="45" y="10" width="10" height="10" fill="#ffd700"/>
-    </svg>
-    <svg class="bauble b-right-3" viewBox="0 0 100 100">
-        <circle cx="50" cy="55" r="40" fill="url(#grad1)"/>
-        <rect x="45" y="10" width="10" height="10" fill="#ffd700"/>
-    </svg>
-
-    <div class="banner-stage">
-        <div class="slide active">
-            <h1>Fijne Feestdagen</h1>
-            <p>Bedankt aan alle leden,<br>bezoekers en abonnees.</p>
-        </div>
-        <div class="slide">
-            <h1>Gelukkig 2026</h1>
-            <p>Wij wensen u een gezond<br>en inspirerend nieuw jaar.</p>
-        </div>
-        <div class="slide">
-            <h1>Bonne Année 2026</h1>
-            <p>Meilleurs vœux pour een année<br>saine et prospère.</p>
-        </div>
+    <!-- Sneeuwheuvels -->
+    <div class="hills">
+        <div class="hill hill-1"></div>
+        <div class="hill hill-2"></div>
+        <div class="hill hill-3"></div>
     </div>
 
-    <script>
-        // Sneeuw genereren
-        const snowContainer = document.getElementById('snow');
-        for (let i = 0; i < 40; i++) {
-            let flake = document.createElement('div');
-            flake.className = 'snowflake';
-            let size = Math.random() * 4 + 2 + 'px';
-            flake.style.width = size;
-            flake.style.height = size;
-            flake.style.left = Math.random() * 100 + '%';
-            flake.style.animationDuration = Math.random() * 3 + 4 + 's';
-            flake.style.animationDelay = Math.random() * 5 + 's';
-            snowContainer.appendChild(flake);
-        }
+    <!-- Vallende sneeuw -->
+    <div class="snow-container" id="snow"></div>
 
-        // Tekst rotatie
-        const slides = document.querySelectorAll('.slide');
-        let currentIdx = 0;
-        setInterval(() => {
-            slides[currentIdx].classList.remove('active');
-            currentIdx = (currentIdx + 1) % slides.length;
-            slides[currentIdx].classList.add('active');
-        }, 5000);
-    </script>
+    <!-- Confetti -->
+    <div class="confetti" style="left: 8%; top: -10px; background: rgba(128,0,0,0.6); animation-delay: 0s;"></div>
+    <div class="confetti" style="left: 20%; top: -10px; background: rgba(128,0,0,0.4); animation-delay: 1s;"></div>
+    <div class="confetti" style="left: 35%; top: -10px; background: rgba(255,215,0,0.6); animation-delay: 2s;"></div>
+    <div class="confetti" style="right: 30%; top: -10px; background: rgba(128,0,0,0.5); animation-delay: 0.5s;"></div>
+    <div class="confetti" style="right: 15%; top: -10px; background: rgba(255,215,0,0.5); animation-delay: 1.5s;"></div>
+    <div class="confetti" style="right: 8%; top: -10px; background: rgba(128,0,0,0.4); animation-delay: 2.5s;"></div>
+
+    <!-- Tekst -->
+    <div class="text-container">
+        <h1>GELUKKIG EN GEZOND NIEUWJAAR</h1>
+        <div class="year">2026</div>
+        <p class="subtitle">
+            <span class="accent-dot"></span>
+            nederlanders.fr
+            <span class="accent-dot"></span>
+        </p>
+    </div>
+
+</div>
+
+<script>
+    // Sneeuw genereren
+    const snowContainer = document.getElementById('snow');
+    for (let i = 0; i < 35; i++) {
+        const flake = document.createElement('div');
+        flake.className = 'snowflake';
+        const size = Math.random() * 4 + 2;
+        flake.style.width = size + 'px';
+        flake.style.height = size + 'px';
+        flake.style.left = Math.random() * 100 + '%';
+        flake.style.animationDuration = (Math.random() * 4 + 5) + 's';
+        flake.style.animationDelay = (Math.random() * 6) + 's';
+        snowContainer.appendChild(flake);
+    }
+</script>
+
 </body>
 </html>
