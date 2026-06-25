@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminClient } from "@/lib/supabase/admin";
-import { requireAdmin } from "@/lib/require-admin";
 
 export const dynamic = "force-dynamic";
 
@@ -8,21 +7,12 @@ const BRONNEN = ["nlfr", "if"];
 const MATCH_TYPES = ["alle", "categorie_any", "categorie_all"];
 const STATUSSEN = ["actief", "gepauzeerd"];
 
-async function guard() {
-  const check = await requireAdmin();
-  if (!check.ok) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-  return null;
-}
-
 function cleanWaarden(input: unknown): string[] {
   if (!Array.isArray(input)) return [];
   return input.map((v) => String(v).trim()).filter((v) => v.length > 0);
 }
 
 export async function GET() {
-  const denied = await guard();
-  if (denied) return denied;
-
   const db = getAdminClient();
   const { data, error } = await db
     .from("distributie_routes")
@@ -35,9 +25,6 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const denied = await guard();
-  if (denied) return denied;
-
   const body = await req.json().catch(() => ({}));
   const { bron, match_type, match_waarden, kanaal_id } = body;
   if (!BRONNEN.includes(bron) || !MATCH_TYPES.includes(match_type)) {
@@ -64,9 +51,6 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
-  const denied = await guard();
-  if (denied) return denied;
-
   const body = await req.json().catch(() => ({}));
   const { id, ...rest } = body;
   if (!id) return NextResponse.json({ error: "id vereist" }, { status: 400 });
@@ -91,9 +75,6 @@ export async function PATCH(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  const denied = await guard();
-  if (denied) return denied;
-
   const { searchParams } = new URL(req.url);
   const id = searchParams.get("id");
   if (!id) return NextResponse.json({ error: "id vereist" }, { status: 400 });

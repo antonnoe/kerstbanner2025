@@ -57,16 +57,6 @@ create index if not exists idx_log_kanaal on distributie_log (kanaal_id, verzond
 create index if not exists idx_log_status on distributie_log (status, verzonden_op desc);
 
 -- ---------------------------------------------------------------------
--- Admin-gebruikers: wie mag inloggen (magic-link). Eén owner (Anton).
--- ---------------------------------------------------------------------
-create table if not exists admin_gebruikers (
-  id         uuid primary key default gen_random_uuid(),
-  email      text unique not null,
-  role       text not null default 'owner',
-  created_at timestamptz not null default now()
-);
-
--- ---------------------------------------------------------------------
 -- Alert-dedup: max 1 alert per (kanaal, type) per dedup-window.
 -- ---------------------------------------------------------------------
 create table if not exists alert_dedup (
@@ -98,44 +88,14 @@ insert into distributie_instellingen (id) values (1)
 -- =====================================================================
 -- Row Level Security
 -- =====================================================================
--- De backend (cron, API-routes) gebruikt de service-role-key en omzeilt
--- RLS volledig. RLS hieronder beschermt tegen directe anon-toegang en
--- staat alleen ingelogde admin-gebruikers leesrechten toe.
+-- De backend (cron, API-routes, dashboard) gebruikt uitsluitend de
+-- service-role-key en omzeilt RLS volledig. Toegang tot het dashboard is
+-- afgeschermd met HTTP Basic Auth (ADMIN_USER/ADMIN_PASS) in de app.
+-- RLS staat hieronder aan zonder permissieve policies: directe anon-/public-
+-- toegang tot deze tabellen wordt dus geweigerd (deny-by-default).
 
 alter table distributie_kanalen        enable row level security;
 alter table distributie_routes         enable row level security;
 alter table distributie_log            enable row level security;
-alter table admin_gebruikers           enable row level security;
 alter table alert_dedup                enable row level security;
 alter table distributie_instellingen   enable row level security;
-
--- Helper: is de ingelogde gebruiker een admin?
-create or replace function public.is_admin()
-returns boolean
-language sql
-security definer
-set search_path = public
-as $$
-  select exists (
-    select 1 from admin_gebruikers
-    where lower(email) = lower(coalesce(auth.jwt() ->> 'email', ''))
-  );
-$$;
-
--- Leesrechten voor ingelogde admins (writes lopen via service-role).
-do $$
-declare t text;
-begin
-  foreach t in array array[
-    'distributie_kanalen','distributie_routes','distributie_log',
-    'admin_gebruikers','alert_dedup','distributie_instellingen'
-  ]
-  loop
-    execute format(
-      'drop policy if exists admin_read on %I;', t
-    );
-    execute format(
-      'create policy admin_read on %I for select to authenticated using (public.is_admin());', t
-    );
-  end loop;
-end $$;

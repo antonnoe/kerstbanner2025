@@ -16,7 +16,7 @@ export async function sendAlertMail(input: SendMailInput): Promise<{
   detail: string;
 }> {
   const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.ALERT_FROM_EMAIL || "noreply@nederlanders.fr";
+  const from = process.env.RESEND_FROM || "noreply@nederlanders.fr";
 
   if (!apiKey) {
     return { ok: false, detail: "RESEND_API_KEY ontbreekt." };

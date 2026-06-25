@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminClient } from "@/lib/supabase/admin";
-import { requireAdmin } from "@/lib/require-admin";
 import { postToHook } from "@/lib/dispatch";
 import type { WebhookPayload } from "@/lib/types";
 
@@ -11,9 +10,6 @@ export const dynamic = "force-dynamic";
  * of naar een meegegeven `hook`-URL. Toont HTTP-status + body.
  */
 export async function POST(req: NextRequest) {
-  const check = await requireAdmin();
-  if (!check.ok) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-
   const body = await req.json().catch(() => ({}));
   let hook: string | undefined = body.hook;
 

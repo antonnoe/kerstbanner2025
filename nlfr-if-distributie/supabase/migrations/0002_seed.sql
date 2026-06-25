@@ -5,11 +5,6 @@
 -- aanmaken van de Zaps (zie ZAPIER-SETUP.md).
 -- =====================================================================
 
--- --- Admin-gebruiker -------------------------------------------------
-insert into admin_gebruikers (email, role)
-values ('antonnoe@gmail.com', 'owner')
-on conflict (email) do nothing;
-
 -- --- Kanalen ---------------------------------------------------------
 insert into distributie_kanalen (naam, type, zapier_hook, status)
 values

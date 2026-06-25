@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminClient } from "@/lib/supabase/admin";
-import { requireAdmin } from "@/lib/require-admin";
 import { postToHook } from "@/lib/dispatch";
 import type { WebhookPayload } from "@/lib/types";
 
@@ -11,9 +10,6 @@ export const dynamic = "force-dynamic";
  * Hergebruikt de opgeslagen payload uit de log-rij.
  */
 export async function POST(req: NextRequest) {
-  const check = await requireAdmin();
-  if (!check.ok) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-
   const body = await req.json().catch(() => ({}));
   const kanaal_id: string | undefined = body.kanaal_id;
   if (!kanaal_id) return NextResponse.json({ error: "kanaal_id vereist" }, { status: 400 });

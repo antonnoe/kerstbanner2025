@@ -1,24 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminClient } from "@/lib/supabase/admin";
-import { requireAdmin } from "@/lib/require-admin";
 
 export const dynamic = "force-dynamic";
 
 const TYPES = ["facebook_page", "linkedin_profile", "linkedin_company"];
 const STATUSSEN = ["actief", "gepauzeerd", "defect"];
 
-async function guard() {
-  const check = await requireAdmin();
-  if (!check.ok) {
-    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-  }
-  return null;
-}
-
 export async function GET() {
-  const denied = await guard();
-  if (denied) return denied;
-
   const db = getAdminClient();
   const { data, error } = await db
     .from("distributie_kanalen")
@@ -30,9 +18,6 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const denied = await guard();
-  if (denied) return denied;
-
   const body = await req.json().catch(() => ({}));
   const { naam, type, zapier_hook } = body;
   if (!naam || !TYPES.includes(type)) {
@@ -51,9 +36,6 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
-  const denied = await guard();
-  if (denied) return denied;
-
   const body = await req.json().catch(() => ({}));
   const { id, ...rest } = body;
   if (!id) return NextResponse.json({ error: "id vereist" }, { status: 400 });
@@ -77,9 +59,6 @@ export async function PATCH(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  const denied = await guard();
-  if (denied) return denied;
-
   const { searchParams } = new URL(req.url);
   const id = searchParams.get("id");
   if (!id) return NextResponse.json({ error: "id vereist" }, { status: 400 });

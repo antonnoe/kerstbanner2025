@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { getBrowserClient } from "@/lib/supabase/browser";
+import { usePathname } from "next/navigation";
 
 const NAV = [
   { href: "/admin", label: "Overzicht" },
@@ -22,13 +21,6 @@ export function Shell({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const router = useRouter();
-
-  async function logout() {
-    await getBrowserClient().auth.signOut();
-    router.push("/admin/login");
-    router.refresh();
-  }
 
   return (
     <div className="app-shell">
@@ -51,13 +43,6 @@ export function Shell({
             );
           })}
         </nav>
-        <button
-          onClick={logout}
-          className="btn btn--ghost btn--sm"
-          style={{ marginTop: 24, width: "100%" }}
-        >
-          Uitloggen
-        </button>
       </aside>
       <main className="main">
         <h1 className="page-title">{title}</h1>

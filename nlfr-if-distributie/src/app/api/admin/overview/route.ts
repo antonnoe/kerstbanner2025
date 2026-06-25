@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { getAdminClient } from "@/lib/supabase/admin";
-import { requireAdmin } from "@/lib/require-admin";
 import type { Kanaal, LogRow } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -27,9 +26,6 @@ function bepaalStatus(
 }
 
 export async function GET() {
-  const check = await requireAdmin();
-  if (!check.ok) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-
   const db = getAdminClient();
   const { data: kanalenData } = await db
     .from("distributie_kanalen")

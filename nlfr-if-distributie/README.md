@@ -32,17 +32,17 @@ IF RSS  ──┘     ├─ parse items
 Monitor cron (/api/cron/monitor, elk uur):
   └─ stilte / foutburst / token-expiry → Resend-alert (met dedup)
 
-Admin /admin (magic-link auth):
+Admin /admin (HTTP Basic Auth):
   overzicht · routes · kanalen · log · instellingen
 ```
 
 ## Stack
 
 - **Next.js 15** (App Router, TypeScript) op **Vercel** (hosting + cron)
-- **Supabase** (project `communities-tools`) — database + magic-link auth
-- **Resend** — monitor-alerts (en als SMTP-provider voor Supabase magic-links)
+- **Supabase** (project `communities-tools`) — database (service-role)
+- **Resend** — monitor-alerts
 - **Zapier** — domme publish-engine (Anton beheert de Zaps)
-- Dependencies: `@supabase/ssr`, `@supabase/supabase-js`, `fast-xml-parser`
+- Dependencies: `@supabase/supabase-js`, `fast-xml-parser`
 
 ---
 
@@ -51,16 +51,14 @@ Admin /admin (magic-link auth):
 ### 1. Supabase
 1. Open het project **communities-tools** → SQL Editor.
 2. Draai `supabase/migrations/0001_schema.sql` (tabellen + RLS).
-3. Draai `supabase/migrations/0002_seed.sql` (3 kanalen, 4 routes, admin-user).
-4. **Auth → Providers → Email**: zet *magic links* aan.
-5. **Auth → SMTP**: vul de Resend-SMTP-gegevens in zodat magic-link-mails
-   via `noreply@nederlanders.fr` verstuurd worden (zie *Magic-link* hieronder).
-6. **Auth → URL Configuration**: voeg de productie-URL + `…/api/auth/callback`
-   toe aan de toegestane redirect-URLs.
+3. Draai `supabase/migrations/0002_seed.sql` (3 kanalen, 4 routes).
+
+> Geen Supabase-Auth nodig: het dashboard logt in met HTTP Basic Auth en
+> praat met de database via de service-role-key. RLS staat deny-by-default aan.
 
 ### 2. Vercel
 1. Koppel deze repo als nieuw Vercel-project (Anton, via de Vercel-UI).
-2. Zet de env-vars (zie hieronder).
+2. Zet de env-vars (zie hieronder) — kies een sterk `ADMIN_PASS`.
 3. Deploy. De crons uit `vercel.json` worden automatisch geregistreerd;
    Vercel genereert en injecteert `CRON_SECRET`.
 
@@ -68,14 +66,15 @@ Admin /admin (magic-link auth):
 
 | Variabele | Omschrijving |
 |---|---|
+| `ADMIN_USER` | Gebruikersnaam voor de dashboard-login (Basic Auth) |
+| `ADMIN_PASS` | Wachtwoord voor de dashboard-login (**geheim**) |
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase project-URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon-key |
-| `SUPABASE_SERVICE_ROLE_KEY` | Service-role-key (backend; **geheim**) |
+| `SUPABASE_SERVICE_ROLE_KEY` | Service-role-key (backend + dashboard; **geheim**) |
 | `RESEND_API_KEY` | Resend API-key (monitor-alerts) |
-| `ALERT_FROM_EMAIL` | Afzender alerts, default `noreply@nederlanders.fr` |
-| `ADMIN_EMAIL` | Fallback admin-email (`antonnoe@gmail.com`) |
+| `RESEND_FROM` | Afzender alerts, default `noreply@nederlanders.fr` |
+| `ADMIN_EMAIL` | Ontvanger monitor-alerts (`antonnoe@gmail.com`) |
 | `CRON_SECRET` | Auto-gegenereerd door Vercel bij cron-setup |
-| `NEXT_PUBLIC_SITE_URL` | Productie-URL, bv `https://…vercel.app` |
+| `NEXT_PUBLIC_SITE_URL` | Productie-URL, bv `https://…vercel.app` (links in alerts) |
 
 Zie `.env.example` voor een kopieerbare template (lokaal: `.env.local`).
 
@@ -103,17 +102,19 @@ curl -H "Authorization: Bearer $CRON_SECRET" http://localhost:3000/api/cron/moni
 
 ---
 
-## Magic-link auth
+## Login — HTTP Basic Auth
 
-- Toegang tot `/admin/*` vereist een geldige Supabase-sessie (afgedwongen door
-  `src/middleware.ts`).
-- Alleen e-mailadressen in de tabel `admin_gebruikers` worden geaccepteerd
-  (gecontroleerd in elke `/api/admin/*`-route via `requireAdmin`).
-- De login-pagina stuurt een Supabase magic-link; die mail loopt via de
-  Resend-SMTP die je in Supabase instelt. **Afzenderdomein:
-  `noreply@nederlanders.fr`** (default — wijzig in Supabase + `ALERT_FROM_EMAIL`
-  als je liever `infofrankrijk.com` gebruikt).
-- Nieuwe admin toevoegen: voeg een rij toe aan `admin_gebruikers`.
+- Eén login, gezet via env-vars `ADMIN_USER` + `ADMIN_PASS`.
+- `src/middleware.ts` dwingt Basic Auth af op **`/admin/*`** én
+  **`/api/admin/*`**. Bij ontbrekende/foute credentials volgt een
+  `401` met `WWW-Authenticate: Basic realm="nlfr-if-distributie"`, waarop de
+  browser een login-dialoog toont en de credentials onthoudt.
+- De cron-routes (`/api/cron/*`) vallen hierbuiten; die gebruiken `CRON_SECRET`.
+- Geen Supabase-Auth, geen magic-link, geen Resend voor inloggen. Resend wordt
+  alleen nog gebruikt voor monitor-alerts.
+- Wachtwoord wijzigen: pas `ADMIN_PASS` aan in Vercel en redeploy.
+- Uitloggen: sluit het browservenster (Basic Auth-credentials zijn
+  browser-cache, niet server-side).
 
 ---
 
@@ -157,8 +158,8 @@ gelijktijdige cron-runs nooit dubbel posten.
 | Cron geeft `401 unauthorized` | `CRON_SECRET` ontbreekt of komt niet overeen. Vercel stuurt hem automatisch; bij handmatig testen zelf de Bearer-header meesturen. |
 | `feed_gevonden: false` voor NLFR | Beide NLFR-URL-varianten faalden. Check `nederlanders.fr` handmatig; de werkende URL wordt onthouden in `distributie_instellingen.nlfr_feed_url`. |
 | Kanaal blijft op `defect` | Foutburst gedetecteerd. Los de oorzaak op (meestal Zapier/OAuth) en zet het kanaal terug op `actief` in `/admin/kanalen`. |
-| Geen alert-mails | Check `RESEND_API_KEY`, `ALERT_FROM_EMAIL` (geverifieerd domein in Resend) en de admin-email in instellingen. |
-| Magic-link komt niet aan | Check de Supabase-SMTP-config (Resend) en de redirect-URL-instellingen. |
+| Geen alert-mails | Check `RESEND_API_KEY`, `RESEND_FROM` (geverifieerd domein in Resend) en de admin-email in instellingen. |
+| Dashboard vraagt steeds om login | Browser onthoudt Basic Auth tot het venster sluit; controleer `ADMIN_USER`/`ADMIN_PASS` in Vercel. |
 | Posts komen dubbel | Zou niet mogen door de unique-constraint. Controleer of `post_url` per item stabiel is in de feed. |
 | Alert blijft uit bij stilte | By design: er wordt alleen gealerteerd als er nieuwe bron-items zijn maar niets verzonden is. Geen nieuwe content = geen storing. |
 

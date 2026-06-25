@@ -1,15 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminClient } from "@/lib/supabase/admin";
-import { requireAdmin } from "@/lib/require-admin";
 
 export const dynamic = "force-dynamic";
 
 const PAGE_SIZE = 50;
 
 export async function GET(req: NextRequest) {
-  const check = await requireAdmin();
-  if (!check.ok) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-
   const { searchParams } = new URL(req.url);
   const page = Math.max(0, parseInt(searchParams.get("page") ?? "0", 10) || 0);
   const bron = searchParams.get("bron");

@@ -1,23 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminClient } from "@/lib/supabase/admin";
-import { requireAdmin } from "@/lib/require-admin";
 import { getInstellingen } from "@/lib/settings";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const check = await requireAdmin();
-  if (!check.ok) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-
   const db = getAdminClient();
   const instellingen = await getInstellingen(db);
   return NextResponse.json({ instellingen });
 }
 
 export async function PUT(req: NextRequest) {
-  const check = await requireAdmin();
-  if (!check.ok) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-
   const body = await req.json().catch(() => ({}));
   const patch: Record<string, unknown> = { id: 1, updated_at: new Date().toISOString() };
 
